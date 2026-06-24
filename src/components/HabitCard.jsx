@@ -2,14 +2,18 @@ import CircularProgress from './CircularProgress';
 import { formatTime } from '../utils/time';
 import { INTERVAL_OPTIONS } from '../data/habits';
 
+const SNOOZE_MINUTES = 5;
+
 export default function HabitCard({
   habit,
   state,
   onToggle,
   onIntervalChange,
+  onDone,
+  onSnooze,
 }) {
   const { id, icon, name, description } = habit;
-  const { enabled, interval, remaining } = state;
+  const { enabled, interval, remaining, snoozed } = state;
 
   const total = interval * 60;
   const progress = total > 0 ? 1 - remaining / total : 0;
@@ -86,6 +90,30 @@ export default function HabitCard({
           </div>
         </div>
       </div>
+
+      {/* Actions when due */}
+      {isDue && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => onDone(id)}
+            className="flex-1 bg-teal border-none rounded-lg text-base font-bold text-xs py-2 cursor-pointer hover:opacity-90 transition-opacity"
+          >
+            ✓ Listo
+          </button>
+          <button
+            onClick={() => onSnooze(id)}
+            className="flex-1 bg-surface border border-border-muted rounded-lg text-text-secondary text-xs py-2 cursor-pointer hover:border-gray-500 transition-colors"
+          >
+            +{SNOOZE_MINUTES} min
+          </button>
+        </div>
+      )}
+
+      {snoozed && (
+        <div className="text-xs text-text-muted text-center">
+          Pospuesto {SNOOZE_MINUTES} min
+        </div>
+      )}
     </div>
   );
 }

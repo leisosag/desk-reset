@@ -1,0 +1,51 @@
+const SNOOZE_MINUTES = 5;
+
+export default function NotificationBanner({ notifications, onDismiss, onSnooze, onDone }) {
+  if (notifications.length === 0) return null;
+
+  const n = notifications[0];
+
+  return (
+    <div
+      className="fixed top-5 right-5 z-50 bg-surface border border-teal rounded-xl p-4 min-w-[280px] max-w-[340px] shadow-[0_8px_32px_rgba(45,212,191,0.15)] animate-slide-in"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div className="flex items-start gap-3">
+        <span className="text-2xl leading-none">{n.icon}</span>
+        <div className="flex-1">
+          <div className="text-teal font-semibold text-sm mb-0.5">{n.name}</div>
+          <div className="text-text-secondary text-xs">{n.description}</div>
+        </div>
+        <button
+          onClick={() => onDismiss(n.id)}
+          aria-label="Cerrar notificación"
+          className="text-text-muted hover:text-text-secondary transition-colors bg-transparent border-none cursor-pointer text-base leading-none"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="flex gap-2 mt-3">
+        <button
+          onClick={() => onDone(n.id)}
+          className="flex-1 bg-teal border-none rounded-lg text-base font-bold text-xs py-2 cursor-pointer hover:opacity-90 transition-opacity"
+        >
+          ✓ Listo
+        </button>
+        <button
+          onClick={() => onSnooze(n.id)}
+          className="flex-1 bg-surface border border-border-muted rounded-lg text-text-secondary text-xs py-2 cursor-pointer hover:border-gray-500 transition-colors"
+        >
+          +{SNOOZE_MINUTES} min
+        </button>
+      </div>
+
+      {notifications.length > 1 && (
+        <div className="mt-2 text-xs text-text-muted text-center">
+          +{notifications.length - 1} recordatorio{notifications.length > 2 ? "s" : ""} más
+        </div>
+      )}
+    </div>
+  );
+}

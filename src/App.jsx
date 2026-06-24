@@ -1,9 +1,10 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 
 function App() {
   return (
     <>
-      <p>Desk Reset</p>
+      <p className="text-amber-500">Desk Reset</p>
     </>
   );
 }

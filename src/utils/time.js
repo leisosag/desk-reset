@@ -12,6 +12,7 @@ export function buildInitialState(habits) {
         enabled: h.defaultEnabled,
         interval: h.defaultInterval,
         remaining: h.defaultInterval * 60,
+        completedToday: 0,
       },
     ])
   );

@@ -1,4 +1,4 @@
-export const INTERVAL_OPTIONS = [1, 15, 20, 30, 45, 60, 90];
+export const INTERVAL_OPTIONS = [15, 20, 30, 45, 60, 90];
 
 export const HABITS = [
   {

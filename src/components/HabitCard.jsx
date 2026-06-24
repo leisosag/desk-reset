@@ -1,23 +1,43 @@
+import CircularProgress from './CircularProgress';
+import { formatTime } from '../utils/time';
 import { INTERVAL_OPTIONS } from '../data/habits';
 
 export default function HabitCard({
   habit,
-  enabled,
-  interval,
+  state,
   onToggle,
   onIntervalChange,
 }) {
   const { id, icon, name, description } = habit;
+  const { enabled, interval, remaining } = state;
+
+  const total = interval * 60;
+  const progress = total > 0 ? 1 - remaining / total : 0;
+  const isUrgent = enabled && remaining < 60 && remaining > 0;
+  const isDue = enabled && remaining === 0;
+
+  const ringColor = isDue ? '#2dd4bf' : isUrgent ? '#99f6e4' : '#2dd4bf33';
+  const timerColorClass = isDue
+    ? 'text-teal'
+    : isUrgent
+      ? 'text-teal-light'
+      : 'text-text-muted';
 
   return (
     <div
-      className={`bg-surface border border-border rounded-xl p-5 flex flex-col gap-4 transition-opacity duration-200 ${!enabled ? 'opacity-45' : ''}`}
+      className={[
+        'bg-surface rounded-xl p-5 flex flex-col gap-4 transition-all duration-300 border',
+        isDue
+          ? 'border-teal shadow-[0_0_16px_rgba(45,212,191,0.12)]'
+          : 'border-border',
+        !enabled ? 'opacity-45' : '',
+      ].join(' ')}
     >
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
           <div className="text-2xl mb-1">{icon}</div>
-          <div className="text-text-primary font-semibold text-lg">{name}</div>
+          <div className="text-text-primary font-semibold text-sm">{name}</div>
           <div className="text-text-muted text-xs mt-0.5">{description}</div>
         </div>
 
@@ -36,42 +56,17 @@ export default function HabitCard({
         </button>
       </div>
 
-      {/* Timer ring + interval selector */}
+      {/* Ring + interval selector */}
       <div className="flex items-center gap-4">
-        {/* Ring */}
         <div className="relative w-[72px] h-[72px] flex-shrink-0">
-          <svg
-            width={72}
-            height={72}
-            style={{ transform: 'rotate(-90deg)' }}
-            aria-hidden="true"
+          <CircularProgress progress={progress} color={ringColor} />
+          <div
+            className={`absolute inset-0 flex items-center justify-center font-mono text-xs font-semibold ${timerColorClass}`}
           >
-            <circle
-              cx={36}
-              cy={36}
-              r={33}
-              fill="none"
-              stroke="#252836"
-              strokeWidth={3}
-            />
-            <circle
-              cx={36}
-              cy={36}
-              r={33}
-              fill="none"
-              stroke="#2dd4bf33"
-              strokeWidth={3}
-              strokeDasharray={207}
-              strokeDashoffset={0}
-              strokeLinecap="round"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold text-text-muted">
-            {String(interval).padStart(2, '0')}:00
+            {enabled ? (isDue ? '¡Ya!' : formatTime(remaining)) : '--:--'}
           </div>
         </div>
 
-        {/* Interval selector */}
         <div className="flex-1">
           <div className="text-text-muted text-xs mb-1.5">Cada</div>
           <div className="flex gap-1 flex-wrap">
@@ -82,7 +77,7 @@ export default function HabitCard({
                 className={`px-2 py-1 rounded text-xs border cursor-pointer transition-all duration-150 ${
                   min === interval
                     ? 'border-teal bg-teal-bg text-teal'
-                    : 'border-border-muted bg-transparent text-text-muted hover:border-gray-500 hover:text-text-secondary'
+                    : 'border-border-muted bg-transparent text-text-muted hover:border-gray-500'
                 }`}
               >
                 {min}m

@@ -1,37 +1,44 @@
 import { INTERVAL_OPTIONS } from '../data/habits';
 
-export default function HabitCard({ habit }) {
-  const { icon, name, description, defaultInterval, defaultEnabled } = habit;
+export default function HabitCard({
+  habit,
+  enabled,
+  interval,
+  onToggle,
+  onIntervalChange,
+}) {
+  const { id, icon, name, description } = habit;
 
   return (
     <div
-      className={`bg-surface border border-border rounded-xl p-5 flex flex-col gap-4 ${!defaultEnabled ? 'opacity-45' : ''}`}
+      className={`bg-surface border border-border rounded-xl p-5 flex flex-col gap-4 transition-opacity duration-200 ${!enabled ? 'opacity-45' : ''}`}
     >
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
           <div className="text-2xl mb-1">{icon}</div>
-          <div className="text-text-primary font-semibold text-base">
-            {name}
-          </div>
+          <div className="text-text-primary font-semibold text-lg">{name}</div>
           <div className="text-text-muted text-xs mt-0.5">{description}</div>
         </div>
 
-        {/* Toggle */}
-        <div
-          className="relative flex-shrink-0 w-10 h-[22px] rounded-full"
-          style={{ background: defaultEnabled ? '#2dd4bf' : '#374151' }}
+        <button
+          onClick={() => onToggle(id)}
+          role="switch"
+          aria-checked={enabled}
+          aria-label={`${enabled ? 'Desactivar' : 'Activar'} ${name}`}
+          className="relative flex-shrink-0 w-10 h-[22px] rounded-full border-none cursor-pointer transition-colors duration-200"
+          style={{ background: enabled ? '#2dd4bf' : '#374151' }}
         >
           <div
-            className="absolute top-[3px] w-4 h-4 rounded-full bg-white"
-            style={{ left: defaultEnabled ? 21 : 3 }}
+            className="absolute top-[3px] w-4 h-4 rounded-full bg-white transition-all duration-200"
+            style={{ left: enabled ? 21 : 3 }}
           />
-        </div>
+        </button>
       </div>
 
       {/* Timer ring + interval selector */}
       <div className="flex items-center gap-4">
-        {/* Ring  */}
+        {/* Ring */}
         <div className="relative w-[72px] h-[72px] flex-shrink-0">
           <svg
             width={72}
@@ -60,8 +67,7 @@ export default function HabitCard({ habit }) {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold text-text-muted">
-            {String(Math.floor(defaultInterval / 60)).padStart(2, '0')}:
-            {String(defaultInterval % 60).padStart(2, '0')}
+            {String(interval).padStart(2, '0')}:00
           </div>
         </div>
 
@@ -72,10 +78,11 @@ export default function HabitCard({ habit }) {
             {INTERVAL_OPTIONS.map((min) => (
               <button
                 key={min}
-                className={`px-2 py-1 rounded text-xs border cursor-pointer ${
-                  min === defaultInterval
+                onClick={() => onIntervalChange(id, min)}
+                className={`px-2 py-1 rounded text-xs border cursor-pointer transition-all duration-150 ${
+                  min === interval
                     ? 'border-teal bg-teal-bg text-teal'
-                    : 'border-border-muted bg-transparent text-text-muted'
+                    : 'border-border-muted bg-transparent text-text-muted hover:border-gray-500 hover:text-text-secondary'
                 }`}
               >
                 {min}m

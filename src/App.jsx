@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { HABITS } from './data/habits';
 import { useHabits } from './hooks/useHabits';
 import HabitCard from './components/HabitCard';
 import NotificationBanner from './components/NotificationBanner';
 import TimeSelect from './components/TimeSelect';
 import SummaryModal from './components/SummaryModal';
-import { Bell, BellOff, Heart } from 'lucide-react';
+import HabitsConfigModal from './components/HabitsConfigModal';
+import { Bell, BellOff, Heart, Settings } from 'lucide-react';
 
 export default function App() {
   const {
@@ -24,7 +26,10 @@ export default function App() {
     isActiveHours,
     showSummary,
     closeSummary,
+    visibleHabits,
+    toggleVisibility,
   } = useHabits();
+  const [showConfig, setShowConfig] = useState(false);
 
   const BellIcon = isDnd ? Bell : BellOff;
 
@@ -76,32 +81,59 @@ export default function App() {
                 <BellIcon className="size-3 text-primary" />
                 {isDnd ? 'Reanudar' : 'No molestar'}
               </button>
+              <button
+                onClick={() => setShowConfig(true)}
+                className="btn-secondary text-text-secondary px-3.5 py-2"
+                aria-label="Configurar hábitos"
+              >
+                <Settings className="size-3" />
+              </button>
             </div>
           </div>
           <div className="h-px bg-border mt-5" />
         </header>
 
         <main>
-          <div
-            className="grid gap-4"
-            style={{
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-            }}
-          >
-            {HABITS.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                state={habitStates[habit.id]}
-                onToggle={toggle}
-                onIntervalChange={setInterval}
-                onDone={markDone}
-                onSnooze={snooze}
-                isActiveHours={isActiveHours}
-                activeHours={activeHours}
-              />
-            ))}
-          </div>
+          {visibleHabits.size === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <p className="text-4xl">🌿</p>
+              <p className="text-text-primary text-sm font-medium">
+                Sin hábitos activos
+              </p>
+              <p className="text-text-muted text-xs text-center max-w-xs">
+                Abrí la configuración para elegir qué hábitos querés ver en tu
+                dashboard
+              </p>
+              <button
+                onClick={() => setShowConfig(true)}
+                className="flex items-center gap-1.5 btn-secondary text-text-secondary px-3.5 py-2 mt-2"
+              >
+                <Settings className="size-3" />
+                Configurar hábitos
+              </button>
+            </div>
+          ) : (
+            <div
+              className="grid gap-4"
+              style={{
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              }}
+            >
+              {HABITS.filter((h) => visibleHabits.has(h.id)).map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  state={habitStates[habit.id]}
+                  onToggle={toggle}
+                  onIntervalChange={setInterval}
+                  onDone={markDone}
+                  onSnooze={snooze}
+                  isActiveHours={isActiveHours}
+                  activeHours={activeHours}
+                />
+              ))}
+            </div>
+          )}
         </main>
 
         <footer className="mt-20 text-center">
@@ -116,6 +148,14 @@ export default function App() {
 
       {showSummary && (
         <SummaryModal habitStates={habitStates} onClose={closeSummary} />
+      )}
+
+      {showConfig && (
+        <HabitsConfigModal
+          visibleHabits={visibleHabits}
+          onToggle={toggleVisibility}
+          onClose={() => setShowConfig(false)}
+        />
       )}
     </>
   );

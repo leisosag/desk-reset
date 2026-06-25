@@ -14,21 +14,23 @@ function isWithinActiveHours(start, end) {
 
 export function useHabits() {
   const [habitStates, setHabitStates] = useState(() => {
+    const base = buildInitialState(HABITS);
     try {
       const saved = localStorage.getItem('deskreset-habits');
       if (saved) {
         const { states, date } = JSON.parse(saved);
         const today = new Date().toDateString();
-        if (date === today) return states;
+        const merged = { ...base, ...states };
+        if (date === today) return merged;
         return Object.fromEntries(
-          Object.entries(states).map(([id, s]) => [
+          Object.entries(merged).map(([id, s]) => [
             id,
             { ...s, completedToday: 0, remaining: s.interval * 60 },
           ]),
         );
       }
     } catch {}
-    return buildInitialState(HABITS);
+    return base;
   });
   const [notifications, setNotifications] = useState([]);
   const [dndManual, setDndManual] = useState(false);
@@ -63,6 +65,15 @@ export function useHabits() {
 
   const isDnd = dndManual || dndSchedule;
 
+  const [visibleHabits, setVisibleHabits] = useState(() => {
+    try {
+      const saved = localStorage.getItem('deskreset-visible');
+      if (saved) return new Set(JSON.parse(saved));
+    } catch {}
+    return new Set(HABITS.filter((h) => h.defaultEnabled).map((h) => h.id));
+  });
+  const visibleHabitsRef = useRef(visibleHabits);
+
   // Sincronizar refs con estado
   useEffect(() => {
     isDndRef.current = isDnd;
@@ -71,6 +82,10 @@ export function useHabits() {
   useEffect(() => {
     activeHoursRef.current = activeHours;
   }, [activeHours]);
+
+  useEffect(() => {
+    visibleHabitsRef.current = visibleHabits;
+  }, [visibleHabits]);
 
   const triggerNotification = (habit) => {
     if (isDndRef.current) return;
@@ -122,7 +137,7 @@ export function useHabits() {
         const next = { ...prev };
         HABITS.forEach((h) => {
           const s = prev[h.id];
-          if (!s.enabled) return;
+          if (!s.enabled || !visibleHabitsRef.current.has(h.id)) return;
           if (s.remaining > 0) {
             next[h.id] = { ...s, remaining: s.remaining - 1 };
             notifiedRef.current.delete(h.id);
@@ -157,6 +172,15 @@ export function useHabits() {
       localStorage.setItem('deskreset-hours', JSON.stringify(activeHours));
     } catch {}
   }, [activeHours]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        'deskreset-visible',
+        JSON.stringify([...visibleHabits]),
+      );
+    } catch {}
+  }, [visibleHabits]);
 
   const toggle = (id) => {
     setHabitStates((prev) => {
@@ -218,13 +242,22 @@ export function useHabits() {
 
   const toggleDnd = () => setDndManual((prev) => !prev);
 
-  const enabledCount = Object.values(habitStates).filter(
-    (s) => s.enabled,
+  const enabledCount = HABITS.filter(
+    (h) => visibleHabits.has(h.id) && habitStates[h.id]?.enabled,
   ).length;
+
   const totalCompleted = Object.values(habitStates).reduce(
     (acc, s) => acc + s.completedToday,
     0,
   );
+
+  const toggleVisibility = (id) => {
+    setVisibleHabits((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   return {
     habitStates,
@@ -244,5 +277,7 @@ export function useHabits() {
     isActiveHours: isWithinActiveHours(activeHours.start, activeHours.end),
     showSummary,
     closeSummary: () => setShowSummary(false),
+    visibleHabits,
+    toggleVisibility,
   };
 }

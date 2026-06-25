@@ -14,6 +14,8 @@ export default function HabitCard({
   activeHours,
   isActiveHours,
 }) {
+  if (!state) return null;
+
   const { id, icon, name, description } = habit;
   const { enabled, interval, remaining, snoozed } = state;
 

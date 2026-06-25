@@ -6,9 +6,23 @@ const SNOOZE_MINUTES = 5;
 const DND_DURATION_MS = 60 * 60 * 1000; // 1 hora
 
 export function useHabits() {
-  const [habitStates, setHabitStates] = useState(() =>
-    buildInitialState(HABITS),
-  );
+  const [habitStates, setHabitStates] = useState(() => {
+    try {
+      const saved = localStorage.getItem('deskreset-habits');
+      if (saved) {
+        const { states, date } = JSON.parse(saved);
+        const today = new Date().toDateString();
+        if (date === today) return states;
+        return Object.fromEntries(
+          Object.entries(states).map(([id, s]) => [
+            id,
+            { ...s, completedToday: 0, remaining: s.interval * 60 },
+          ]),
+        );
+      }
+    } catch {}
+    return buildInitialState(HABITS);
+  });
   const [notifications, setNotifications] = useState([]);
   const [dndUntil, setDndUntil] = useState(null);
   const tickRef = useRef(null);
@@ -64,7 +78,18 @@ export function useHabits() {
 
     return () => clearInterval(tickRef.current);
   }, [isDnd]);
-  // isDnd como dependencia para que triggerNotification use el valor actualizado
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        'deskreset-habits',
+        JSON.stringify({
+          states: habitStates,
+          date: new Date().toDateString(),
+        }),
+      );
+    } catch {}
+  }, [habitStates]);
 
   const toggle = (id) => {
     setHabitStates((prev) => {

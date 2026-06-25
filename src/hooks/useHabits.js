@@ -5,6 +5,14 @@ import { buildInitialState } from '../utils/time';
 const SNOOZE_MINUTES = 5;
 const DND_DURATION_MS = 60 * 60 * 1000; // 1 hora
 
+function isWithinActiveHours(start, end) {
+  const now = new Date();
+  const current = now.getHours() * 60 + now.getMinutes();
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  return current >= sh * 60 + sm && current < eh * 60 + em;
+}
+
 export function useHabits() {
   const [habitStates, setHabitStates] = useState(() => {
     try {
@@ -25,7 +33,18 @@ export function useHabits() {
   });
   const [notifications, setNotifications] = useState([]);
   const [dndManual, setDndManual] = useState(false);
-  const [dndSchedule, setDndSchedule] = useState(false);
+  const [dndSchedule, setDndSchedule] = useState(() => {
+    const saved = (() => {
+      try {
+        const s = localStorage.getItem('deskreset-hours');
+        return s ? JSON.parse(s) : null;
+      } catch {
+        return null;
+      }
+    })();
+    const hours = saved ?? { start: '09:00', end: '18:00' };
+    return !isWithinActiveHours(hours.start, hours.end);
+  });
   const [activeHours, setActiveHours] = useState(() => {
     try {
       const saved = localStorage.getItem('deskreset-hours');
@@ -35,11 +54,25 @@ export function useHabits() {
   });
   const tickRef = useRef(null);
   const notifiedRef = useRef(new Set());
+  const wasActiveRef = useRef(
+    isWithinActiveHours(activeHours.start, activeHours.end),
+  );
 
   const isDnd = dndManual || dndSchedule;
+  const isDndRef = useRef(isDnd);
+
+  useEffect(() => {
+    isDndRef.current = isDnd;
+  }, [isDnd]);
+
+  const activeHoursRef = useRef(activeHours);
+
+  useEffect(() => {
+    activeHoursRef.current = activeHours;
+  }, [activeHours]);
 
   const triggerNotification = (habit) => {
-    if (isDnd) return;
+    if (isDndRef.current) return;
     setNotifications((prev) => {
       if (prev.find((n) => n.id === habit.id)) return prev;
       return [
@@ -57,14 +90,6 @@ export function useHabits() {
     }
   };
 
-  function isWithinActiveHours(start, end) {
-    const now = new Date();
-    const current = now.getHours() * 60 + now.getMinutes();
-    const [sh, sm] = start.split(':').map(Number);
-    const [eh, em] = end.split(':').map(Number);
-    return current >= sh * 60 + sm && current < eh * 60 + em;
-  }
-
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -75,8 +100,15 @@ export function useHabits() {
     tickRef.current = setInterval(() => {
       setHabitStates((prev) => {
         const next = { ...prev };
-        const inHours = isWithinActiveHours(activeHours.start, activeHours.end);
+        const inHours = isWithinActiveHours(
+          activeHoursRef.current.start,
+          activeHoursRef.current.end,
+        );
+        if (inHours && !wasActiveRef.current) {
+          setDndManual(false);
+        }
         setDndSchedule(!inHours);
+        wasActiveRef.current = inHours;
         HABITS.forEach((h) => {
           const s = prev[h.id];
           if (!s.enabled) return;
@@ -95,7 +127,7 @@ export function useHabits() {
     }, 1000);
 
     return () => clearInterval(tickRef.current);
-  }, [isDnd]);
+  }, []);
 
   useEffect(() => {
     try {

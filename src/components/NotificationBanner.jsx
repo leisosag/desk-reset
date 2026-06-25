@@ -1,9 +1,14 @@
 const SNOOZE_MINUTES = 5;
 
-export default function NotificationBanner({ notifications, onDismiss, onSnooze, onDone }) {
+export default function NotificationBanner({
+  notifications,
+  onDismiss,
+  onSnooze,
+  onDone,
+}) {
   if (notifications.length === 0) return null;
-
   const n = notifications[0];
+  const HabitIcon = n.icon;
 
   return (
     <div
@@ -12,7 +17,7 @@ export default function NotificationBanner({ notifications, onDismiss, onSnooze,
       aria-live="assertive"
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl leading-none">{n.icon}</span>
+        <HabitIcon className="size-5 text-primary" />
         <div className="flex-1">
           <div className="text-teal font-semibold text-sm mb-0.5">{n.name}</div>
           <div className="text-text-secondary text-xs">{n.description}</div>
@@ -43,7 +48,8 @@ export default function NotificationBanner({ notifications, onDismiss, onSnooze,
 
       {notifications.length > 1 && (
         <div className="mt-2 text-xs text-text-muted text-center">
-          +{notifications.length - 1} recordatorio{notifications.length > 2 ? "s" : ""} más
+          +{notifications.length - 1} recordatorio
+          {notifications.length > 2 ? 's' : ''} más
         </div>
       )}
     </div>

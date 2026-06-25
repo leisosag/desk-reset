@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { HABITS } from "../data/habits";
-import { buildInitialState } from "../utils/time";
+import { useState, useEffect, useRef } from 'react';
+import { HABITS } from '../data/habits';
+import { buildInitialState } from '../utils/time';
 
 const SNOOZE_MINUTES = 5;
 const DND_DURATION_MS = 60 * 60 * 1000; // 1 hora
 
 export function useHabits() {
-  const [habitStates, setHabitStates] = useState(() => buildInitialState(HABITS));
+  const [habitStates, setHabitStates] = useState(() =>
+    buildInitialState(HABITS),
+  );
   const [notifications, setNotifications] = useState([]);
   const [dndUntil, setDndUntil] = useState(null);
   const tickRef = useRef(null);
@@ -18,15 +20,23 @@ export function useHabits() {
     if (isDnd) return;
     setNotifications((prev) => {
       if (prev.find((n) => n.id === habit.id)) return prev;
-      return [...prev, { id: habit.id, name: habit.name, description: habit.description, icon: habit.icon }];
+      return [
+        ...prev,
+        {
+          id: habit.id,
+          name: habit.name,
+          description: habit.description,
+          icon: habit.icon,
+        },
+      ];
     });
-    if ("Notification" in window && Notification.permission === "granted") {
+    if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(habit.name, { body: habit.description });
     }
   };
 
   useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
+    if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
   }, []);
@@ -61,7 +71,12 @@ export function useHabits() {
       const s = prev[id];
       return {
         ...prev,
-        [id]: { ...s, enabled: !s.enabled, remaining: s.interval * 60, snoozed: false },
+        [id]: {
+          ...s,
+          enabled: !s.enabled,
+          remaining: s.interval * 60,
+          snoozed: false,
+        },
       };
     });
     setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -71,7 +86,12 @@ export function useHabits() {
   const setInterval_ = (id, minutes) => {
     setHabitStates((prev) => ({
       ...prev,
-      [id]: { ...prev[id], interval: minutes, remaining: minutes * 60, snoozed: false },
+      [id]: {
+        ...prev[id],
+        interval: minutes,
+        remaining: minutes * 60,
+        snoozed: false,
+      },
     }));
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     notifiedRef.current.delete(id);
@@ -113,8 +133,13 @@ export function useHabits() {
     }
   };
 
-  const enabledCount = Object.values(habitStates).filter((s) => s.enabled).length;
-  const totalCompleted = Object.values(habitStates).reduce((acc, s) => acc + s.completedToday, 0);
+  const enabledCount = Object.values(habitStates).filter(
+    (s) => s.enabled,
+  ).length;
+  const totalCompleted = Object.values(habitStates).reduce(
+    (acc, s) => acc + s.completedToday,
+    0,
+  );
 
   return {
     habitStates,

@@ -1,7 +1,8 @@
-import { HABITS } from "./data/habits";
-import { useHabits } from "./hooks/useHabits";
-import HabitCard from "./components/HabitCard";
-import NotificationBanner from "./components/NotificationBanner";
+import { HABITS } from './data/habits';
+import { useHabits } from './hooks/useHabits';
+import HabitCard from './components/HabitCard';
+import NotificationBanner from './components/NotificationBanner';
+import { Bell, BellOff } from 'lucide-react';
 
 export default function App() {
   const {
@@ -17,6 +18,8 @@ export default function App() {
     dismiss,
     toggleDnd,
   } = useHabits();
+
+  const BellIcon = isDnd ? Bell : BellOff;
 
   return (
     <>
@@ -35,30 +38,31 @@ export default function App() {
                 Desk Reset
               </h1>
               <p className="text-text-muted text-xs mt-1">
-                {enabledCount} activo{enabledCount !== 1 ? "s" : ""} · {totalCompleted} completado{totalCompleted !== 1 ? "s" : ""} hoy
+                {enabledCount} activo{enabledCount !== 1 ? 's' : ''} ·{' '}
+                {totalCompleted} completado{totalCompleted !== 1 ? 's' : ''} hoy
               </p>
             </div>
-
             <button
               onClick={toggleDnd}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs border cursor-pointer transition-all duration-200 ${
                 isDnd
-                  ? "border-teal bg-teal-bg text-teal"
-                  : "border-border-muted bg-transparent text-text-muted hover:border-gray-500 hover:text-text-secondary"
+                  ? 'border-teal bg-teal-bg text-teal'
+                  : 'border-border-muted bg-transparent text-text-muted hover:border-gray-500 hover:text-text-secondary'
               }`}
             >
-              <span>{isDnd ? "🔔" : "🔕"}</span>
-              {isDnd ? "Reanudar" : "No molestar"}
+              <BellIcon className="size-3 text-primary" />
+              {isDnd ? 'Reanudar' : 'No molestar'}
             </button>
           </div>
-
           <div className="h-px bg-border mt-5" />
         </header>
 
         <main>
           <div
             className="grid gap-4"
-            style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}
+            style={{
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            }}
           >
             {HABITS.map((habit) => (
               <HabitCard
@@ -76,7 +80,7 @@ export default function App() {
 
         <footer className="mt-10 text-center">
           <p className="font-mono text-xs text-border-muted">
-            los hábitos pequeños hacen la diferencia
+            Los hábitos pequeños hacen la diferencia
           </p>
         </footer>
       </div>

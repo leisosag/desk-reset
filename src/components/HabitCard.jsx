@@ -27,6 +27,8 @@ export default function HabitCard({
       ? 'text-teal-light'
       : 'text-text-muted';
 
+  const HabitIcon = habit.icon;
+
   return (
     <div
       className={[
@@ -40,7 +42,7 @@ export default function HabitCard({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <div className="text-2xl mb-1">{icon}</div>
+          <HabitIcon className="size-5 text-primary mb-1" />
           <div className="text-text-primary font-semibold text-sm">{name}</div>
           <div className="text-text-muted text-xs mt-0.5">{description}</div>
         </div>

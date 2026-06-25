@@ -3,7 +3,6 @@ import { HABITS } from '../data/habits';
 import { buildInitialState } from '../utils/time';
 
 const SNOOZE_MINUTES = 5;
-const DND_DURATION_MS = 60 * 60 * 1000; // 1 hora
 
 function isWithinActiveHours(start, end) {
   const now = new Date();
@@ -52,20 +51,22 @@ export function useHabits() {
     } catch {}
     return { start: '09:00', end: '18:00' };
   });
+  const [showSummary, setShowSummary] = useState(false);
+
   const tickRef = useRef(null);
   const notifiedRef = useRef(new Set());
   const wasActiveRef = useRef(
     isWithinActiveHours(activeHours.start, activeHours.end),
   );
+  const isDndRef = useRef(false);
+  const activeHoursRef = useRef(activeHours);
 
   const isDnd = dndManual || dndSchedule;
-  const isDndRef = useRef(isDnd);
 
+  // Sincronizar refs con estado
   useEffect(() => {
     isDndRef.current = isDnd;
   }, [isDnd]);
-
-  const activeHoursRef = useRef(activeHours);
 
   useEffect(() => {
     activeHoursRef.current = activeHours;
@@ -98,17 +99,27 @@ export function useHabits() {
 
   useEffect(() => {
     tickRef.current = setInterval(() => {
+      const inHours = isWithinActiveHours(
+        activeHoursRef.current.start,
+        activeHoursRef.current.end,
+      );
+
+      if (inHours && !wasActiveRef.current) {
+        // entró al horario activo
+        setDndManual(false);
+        setDndSchedule(false);
+      } else if (!inHours && wasActiveRef.current) {
+        // salió del horario activo
+        setDndSchedule(true);
+        setShowSummary(true);
+      }
+
+      wasActiveRef.current = inHours;
+
+      if (!inHours) return;
+
       setHabitStates((prev) => {
         const next = { ...prev };
-        const inHours = isWithinActiveHours(
-          activeHoursRef.current.start,
-          activeHoursRef.current.end,
-        );
-        if (inHours && !wasActiveRef.current) {
-          setDndManual(false);
-        }
-        setDndSchedule(!inHours);
-        wasActiveRef.current = inHours;
         HABITS.forEach((h) => {
           const s = prev[h.id];
           if (!s.enabled) return;
@@ -219,6 +230,7 @@ export function useHabits() {
     habitStates,
     notifications,
     isDnd,
+    dndSchedule,
     enabledCount,
     totalCompleted,
     toggle,
@@ -230,5 +242,7 @@ export function useHabits() {
     activeHours,
     setActiveHours,
     isActiveHours: isWithinActiveHours(activeHours.start, activeHours.end),
+    showSummary,
+    closeSummary: () => setShowSummary(false),
   };
 }

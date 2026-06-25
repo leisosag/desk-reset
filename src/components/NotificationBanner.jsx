@@ -25,22 +25,19 @@ export default function NotificationBanner({
         <button
           onClick={() => onDismiss(n.id)}
           aria-label="Cerrar notificación"
-          className="text-text-muted hover:text-text-secondary transition-colors bg-transparent border-none cursor-pointer text-base leading-none"
+          className="btn-close cursor-pointer text-text-muted"
         >
           ×
         </button>
       </div>
 
       <div className="flex gap-2 mt-3">
-        <button
-          onClick={() => onDone(n.id)}
-          className="flex-1 bg-teal border-none rounded-lg text-base font-bold text-xs py-2 cursor-pointer hover:opacity-90 transition-opacity"
-        >
+        <button onClick={() => onDone(n.id)} className="btn-primary">
           ✓ Listo
         </button>
         <button
           onClick={() => onSnooze(n.id)}
-          className="flex-1 bg-surface border border-border-muted rounded-lg text-text-secondary text-xs py-2 cursor-pointer hover:border-gray-500 transition-colors"
+          className="btn-secondary text-text-secondary"
         >
           +{SNOOZE_MINUTES} min
         </button>

@@ -111,15 +111,12 @@ export default function HabitCard({
       {/* Actions when due */}
       {isDue && (
         <div className="flex gap-2">
-          <button
-            onClick={() => onDone(id)}
-            className="flex-1 bg-teal border-none rounded-lg text-base font-bold text-xs py-2 cursor-pointer hover:opacity-90 transition-opacity"
-          >
+          <button onClick={() => onDone(id)} className="btn-primary">
             ✓ Listo
           </button>
           <button
             onClick={() => onSnooze(id)}
-            className="flex-1 bg-surface border border-border-muted rounded-lg text-text-secondary text-xs py-2 cursor-pointer hover:border-gray-500 transition-colors"
+            className="btn-secondary text-text-secondary"
           >
             +{SNOOZE_MINUTES} min
           </button>

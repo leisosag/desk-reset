@@ -3,6 +3,7 @@ import { useHabits } from './hooks/useHabits';
 import HabitCard from './components/HabitCard';
 import NotificationBanner from './components/NotificationBanner';
 import TimeSelect from './components/TimeSelect';
+import SummaryModal from './components/SummaryModal';
 import { Bell, BellOff, Heart } from 'lucide-react';
 
 export default function App() {
@@ -21,6 +22,8 @@ export default function App() {
     activeHours,
     setActiveHours,
     isActiveHours,
+    showSummary,
+    closeSummary,
   } = useHabits();
 
   const BellIcon = isDnd ? Bell : BellOff;
@@ -110,6 +113,10 @@ export default function App() {
           </p>
         </footer>
       </div>
+
+      {showSummary && (
+        <SummaryModal habitStates={habitStates} onClose={closeSummary} />
+      )}
     </>
   );
 }

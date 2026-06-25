@@ -2,7 +2,7 @@ import { HABITS } from './data/habits';
 import { useHabits } from './hooks/useHabits';
 import HabitCard from './components/HabitCard';
 import NotificationBanner from './components/NotificationBanner';
-import { Bell, BellOff } from 'lucide-react';
+import { Bell, BellOff, Heart } from 'lucide-react';
 
 export default function App() {
   const {
@@ -78,9 +78,12 @@ export default function App() {
           </div>
         </main>
 
-        <footer className="mt-10 text-center">
+        <footer className="mt-20 text-center">
           <p className="font-mono text-xs text-border-muted">
             Los hábitos pequeños hacen la diferencia
+          </p>
+          <p className="text-xs text-border-muted mt-3 flex items-center justify-center gap-1">
+            Made with <Heart className="size-3 text-teal fill-teal" /> by Lei
           </p>
         </footer>
       </div>

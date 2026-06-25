@@ -2,6 +2,7 @@ import { HABITS } from './data/habits';
 import { useHabits } from './hooks/useHabits';
 import HabitCard from './components/HabitCard';
 import NotificationBanner from './components/NotificationBanner';
+import TimeSelect from './components/TimeSelect';
 import { Bell, BellOff, Heart } from 'lucide-react';
 
 export default function App() {
@@ -17,6 +18,9 @@ export default function App() {
     snooze,
     dismiss,
     toggleDnd,
+    activeHours,
+    setActiveHours,
+    isActiveHours,
   } = useHabits();
 
   const BellIcon = isDnd ? Bell : BellOff;
@@ -42,17 +46,34 @@ export default function App() {
                 {totalCompleted} completado{totalCompleted !== 1 ? 's' : ''} hoy
               </p>
             </div>
-            <button
-              onClick={toggleDnd}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs border cursor-pointer transition-all duration-200 ${
-                isDnd
-                  ? 'border-teal bg-teal-bg text-teal'
-                  : 'border-border-muted bg-transparent text-text-muted hover:border-gray-500 hover:text-text-secondary'
-              }`}
-            >
-              <BellIcon className="size-3 text-primary" />
-              {isDnd ? 'Reanudar' : 'No molestar'}
-            </button>
+            <div className="flex gap-2">
+              <div className="flex items-center gap-1.5 border border-border-muted rounded-lg px-3 py-2">
+                <TimeSelect
+                  value={activeHours.start}
+                  onChange={(val) =>
+                    setActiveHours((prev) => ({ ...prev, start: val }))
+                  }
+                />
+                <span className="text-border-muted text-xs">—</span>
+                <TimeSelect
+                  value={activeHours.end}
+                  onChange={(val) =>
+                    setActiveHours((prev) => ({ ...prev, end: val }))
+                  }
+                />
+              </div>
+              <button
+                onClick={toggleDnd}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs border cursor-pointer transition-all duration-200 ${
+                  isDnd
+                    ? 'border-teal bg-teal-bg text-teal'
+                    : 'border-border-muted bg-transparent text-text-muted hover:border-gray-500 hover:text-text-secondary'
+                }`}
+              >
+                <BellIcon className="size-3 text-primary" />
+                {isDnd ? 'Reanudar' : 'No molestar'}
+              </button>
+            </div>
           </div>
           <div className="h-px bg-border mt-5" />
         </header>
@@ -73,6 +94,8 @@ export default function App() {
                 onIntervalChange={setInterval}
                 onDone={markDone}
                 onSnooze={snooze}
+                isActiveHours={isActiveHours}
+                activeHours={activeHours}
               />
             ))}
           </div>

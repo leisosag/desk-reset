@@ -24,11 +24,19 @@ export function useHabits() {
     return buildInitialState(HABITS);
   });
   const [notifications, setNotifications] = useState([]);
-  const [dndUntil, setDndUntil] = useState(null);
+  const [dndManual, setDndManual] = useState(false);
+  const [dndSchedule, setDndSchedule] = useState(false);
+  const [activeHours, setActiveHours] = useState(() => {
+    try {
+      const saved = localStorage.getItem('deskreset-hours');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { start: '09:00', end: '18:00' };
+  });
   const tickRef = useRef(null);
   const notifiedRef = useRef(new Set());
 
-  const isDnd = dndUntil !== null && Date.now() < dndUntil;
+  const isDnd = dndManual || dndSchedule;
 
   const triggerNotification = (habit) => {
     if (isDnd) return;
@@ -49,6 +57,14 @@ export function useHabits() {
     }
   };
 
+  function isWithinActiveHours(start, end) {
+    const now = new Date();
+    const current = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    return current >= sh * 60 + sm && current < eh * 60 + em;
+  }
+
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
@@ -59,6 +75,8 @@ export function useHabits() {
     tickRef.current = setInterval(() => {
       setHabitStates((prev) => {
         const next = { ...prev };
+        const inHours = isWithinActiveHours(activeHours.start, activeHours.end);
+        setDndSchedule(!inHours);
         HABITS.forEach((h) => {
           const s = prev[h.id];
           if (!s.enabled) return;
@@ -90,6 +108,12 @@ export function useHabits() {
       );
     } catch {}
   }, [habitStates]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('deskreset-hours', JSON.stringify(activeHours));
+    } catch {}
+  }, [activeHours]);
 
   const toggle = (id) => {
     setHabitStates((prev) => {
@@ -149,14 +173,7 @@ export function useHabits() {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const toggleDnd = () => {
-    if (isDnd) {
-      setDndUntil(null);
-    } else {
-      setDndUntil(Date.now() + DND_DURATION_MS);
-      setNotifications([]);
-    }
-  };
+  const toggleDnd = () => setDndManual((prev) => !prev);
 
   const enabledCount = Object.values(habitStates).filter(
     (s) => s.enabled,
@@ -178,5 +195,8 @@ export function useHabits() {
     snooze,
     dismiss,
     toggleDnd,
+    activeHours,
+    setActiveHours,
+    isActiveHours: isWithinActiveHours(activeHours.start, activeHours.end),
   };
 }

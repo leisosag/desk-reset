@@ -11,6 +11,8 @@ export default function HabitCard({
   onIntervalChange,
   onDone,
   onSnooze,
+  activeHours,
+  isActiveHours,
 }) {
   const { id, icon, name, description } = habit;
   const { enabled, interval, remaining, snoozed } = state;
@@ -69,7 +71,20 @@ export default function HabitCard({
           <div
             className={`absolute inset-0 flex items-center justify-center font-mono text-xs font-semibold ${timerColorClass}`}
           >
-            {enabled ? (isDue ? '¡Ya!' : formatTime(remaining)) : '--:--'}
+            {!isActiveHours ? (
+              <span className="text-[10px] text-text-muted text-center leading-tight px-1">
+                Retoma
+                <br />a las {activeHours.start}
+              </span>
+            ) : enabled ? (
+              isDue ? (
+                '¡Ya!'
+              ) : (
+                formatTime(remaining)
+              )
+            ) : (
+              '--:--'
+            )}
           </div>
         </div>
 

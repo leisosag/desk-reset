@@ -1,4 +1,5 @@
 import { HABITS } from '../data/habits';
+import { X } from '@phosphor-icons/react';
 
 const CATEGORIES = [...new Set(HABITS.map((h) => h.category))];
 
@@ -24,7 +25,7 @@ export default function HabitsConfigModal({
             aria-label="Cerrar"
             className="btn-close cursor-pointer text-text-muted"
           >
-            ×
+            <X />
           </button>
         </div>
 

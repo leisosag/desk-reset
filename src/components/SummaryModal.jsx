@@ -1,4 +1,5 @@
 import { HABITS } from '../data/habits';
+import { X } from '@phosphor-icons/react';
 
 export default function SummaryModal({ habitStates, onClose }) {
   const totalCompleted = Object.values(habitStates).reduce(
@@ -32,7 +33,7 @@ export default function SummaryModal({ habitStates, onClose }) {
             className="btn-close cursor-pointer text-text-muted"
             aria-label="Cerrar resumen"
           >
-            ×
+            <X />
           </button>
         </div>
 

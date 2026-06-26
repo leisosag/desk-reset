@@ -6,7 +6,14 @@ import NotificationBanner from './components/NotificationBanner';
 import TimeSelect from './components/TimeSelect';
 import SummaryModal from './components/SummaryModal';
 import HabitsConfigModal from './components/HabitsConfigModal';
-import { Bell, BellOff, Heart, Settings } from 'lucide-react';
+import {
+  Bell,
+  BellSlash,
+  Heart,
+  Gear,
+  Check,
+  SunHorizon,
+} from '@phosphor-icons/react';
 
 export default function App() {
   const {
@@ -31,7 +38,7 @@ export default function App() {
   } = useHabits();
   const [showConfig, setShowConfig] = useState(false);
 
-  const BellIcon = isDnd ? Bell : BellOff;
+  const BellIcon = isDnd ? Bell : BellSlash;
 
   return (
     <>
@@ -86,7 +93,7 @@ export default function App() {
                 className="btn-secondary text-text-secondary px-3.5 py-2"
                 aria-label="Configurar hábitos"
               >
-                <Settings className="size-3" />
+                <Gear className="size-4" />
               </button>
             </div>
           </div>
@@ -96,7 +103,7 @@ export default function App() {
         <main>
           {visibleHabits.size === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <p className="text-4xl">🌿</p>
+              <SunHorizon className="text-teal size-10" />
               <p className="text-text-primary text-sm font-medium">
                 Sin hábitos activos
               </p>
@@ -108,7 +115,7 @@ export default function App() {
                 onClick={() => setShowConfig(true)}
                 className="flex items-center gap-1.5 btn-secondary text-text-secondary px-3.5 py-2 mt-2"
               >
-                <Settings className="size-3" />
+                <Gear className="size-4" />
                 Configurar hábitos
               </button>
             </div>

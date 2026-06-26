@@ -1,3 +1,5 @@
+import { X } from '@phosphor-icons/react';
+
 const SNOOZE_MINUTES = 5;
 
 export default function NotificationBanner({
@@ -27,7 +29,7 @@ export default function NotificationBanner({
           aria-label="Cerrar notificación"
           className="btn-close cursor-pointer text-text-muted"
         >
-          ×
+          <X />
         </button>
       </div>
 
